@@ -357,9 +357,6 @@
     </div>
 
     <script>
-        // Configuration - IMPORTANT: Replace with your actual API key
-        const API_KEY = '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'; // SECURITY WARNING: Never expose API keys in production!
-        const API_URL = 'https://api.openai.com/v1/chat/completions';
         const USE_MOCK_DATA = false; // Set to false when you have a valid API key
         
         let currentWeek = 1;
@@ -513,112 +510,119 @@
 
         // Form submission
         document.getElementById('study-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                examType: document.getElementById('exam-type').value,
-                currentLevel: document.getElementById('current-level').value,
-                targetScore: document.getElementById('target-score').value,
-                studyDuration: document.getElementById('study-duration').value,
-                hoursPerDay: document.getElementById('hours-per-day').value,
-                weakAreas: document.getElementById('weak-areas').value
-            };
+    e.preventDefault();
+    
+    const formData = {
+        examType: document.getElementById('exam-type').value,
+        currentLevel: document.getElementById('current-level').value,
+        targetScore: document.getElementById('target-score').value,
+        studyDuration: document.getElementById('study-duration').value,
+        hoursPerDay: document.getElementById('hours-per-day').value,
+        weakAreas: document.getElementById('weak-areas').value
+    };
 
-            // Validation
-            if (!formData.examType || !formData.currentLevel || !formData.targetScore || !formData.studyDuration || !formData.hoursPerDay) {
-                alert('Please fill in all required fields');
-                return;
-            }
+    // Validation
+    if (!formData.examType || !formData.currentLevel || !formData.targetScore || !formData.studyDuration || !formData.hoursPerDay) {
+        alert('Please fill in all required fields');
+        return;
+    }
 
-            // Show loading
-            document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('study-plan-result').classList.add('hidden');
+    // Show loading
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('study-plan-result').classList.add('hidden');
 
-            try {
-                let studyPlan;
-                if (USE_MOCK_DATA) {
-                    // Use mock data for testing
-                    studyPlan = await generateMockStudyPlan(formData);
-                } else {
-                    // Use real API
-                    studyPlan = await generateAIStudyPlan(formData);
-                }
-                displayEnhancedStudyPlan(studyPlan, formData);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error generating study plan. Please check your API key and try again.');
-            } finally {
-                document.getElementById('loading').classList.add('hidden');
-            }
-        });
+    try {
+        console.log('Form data:', formData);
+        console.log('USE_MOCK_DATA:', USE_MOCK_DATA);
+        
+        let studyPlan;
+        if (USE_MOCK_DATA) {
+            console.log('Using mock data for testing');
+            studyPlan = await generateMockStudyPlan(formData);
+        } else {
+            console.log('Using real API');
+            studyPlan = await generateAIStudyPlan(formData);
+        }
+        displayEnhancedStudyPlan(studyPlan, formData);
+    } catch (error) {
+        console.error('Error details:', error);
+        alert('Error generating study plan: ' + error.message);
+    } finally {
+        document.getElementById('loading').classList.add('hidden');
+    }
+});
 
         // Generate AI study plan using OpenAI API
         async function generateAIStudyPlan(formData) {
-            const readingList = STUDY_MATERIALS.reading.map(r => 
-                `"${r.title}" (${r.source}, ${r.duration})`
-            ).join(', ');
+    console.log('Starting API call with data:', formData);
+    
+    const readingList = STUDY_MATERIALS.reading.map(r => 
+        `"${r.title}" (${r.source}, ${r.duration})`
+    ).join(', ');
 
-            const prompt = `Create a detailed ${formData.studyDuration}-week study plan for a ${formData.currentLevel} level student preparing for ${formData.examType} exam. 
-            Target score: ${formData.targetScore}
-            Study hours per day: ${formData.hoursPerDay}
-            Weak areas to focus on: ${formData.weakAreas || 'General improvement'}
-            
-            IMPORTANT: Incorporate these specific reading materials throughout the plan:
-            ${readingList}
-            
-            Please provide a JSON response with the following structure:
+    const prompt = `Create a detailed ${formData.studyDuration}-week study plan for a ${formData.currentLevel} level student preparing for ${formData.examType} exam. 
+    Target score: ${formData.targetScore}
+    Study hours per day: ${formData.hoursPerDay}
+    Weak areas to focus on: ${formData.weakAreas || 'General improvement'}
+    
+    Please provide a JSON response with the following structure:
+    {
+        "weeklyPlan": [
             {
-                "weeklyPlan": [
-                    {
-                        "week": 1,
-                        "focus": "Foundation Building",
-                        "tasks": ["task1", "task2", ...],
-                        "assignedReadings": ["article title 1", "article title 2"],
-                        "milestone": null or "Practice Test #1",
-                        "hours": number
-                    }
-                ],
-                "modules": ["Module 1", "Module 2", ...],
-                "tips": ["tip1", "tip2", ...]
+                "week": 1,
+                "focus": "Foundation Building",
+                "tasks": ["task1", "task2"],
+                "assignedReadings": ["article title 1"],
+                "milestone": null,
+                "hours": 20
             }
-            
-            Distribute the reading materials across weeks based on difficulty and relevance.`;
+        ],
+        "modules": ["Module 1", "Module 2"],
+        "tips": ["tip1", "tip2"]
+    }`;
 
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4-turbo-preview', // or 'gpt-3.5-turbo' for lower cost
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'You are an expert educational consultant specializing in SAT and IELTS exam preparation. Always respond with valid JSON.'
-                        },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 2500,
-                    response_format: { type: "json_object" }
-                })
-            });
+    console.log('Sending request to API...');
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(`API Error: ${error.error?.message || 'Unknown error'}`);
-            }
+    try {
+        const response = await fetch('./api.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt: prompt })
+        });
 
-            const data = await response.json();
-            const planData = JSON.parse(data.choices[0].message.content);
-            
-            // Process and enrich the plan with reading materials
-            return processAIPlan(planData, formData);
+        console.log('Response status:', response.status);
+
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${responseText}`);
         }
+
+        const data = JSON.parse(responseText);
+        console.log('Parsed response:', data);
+        
+        if (data.error) {
+            console.error('API Error:', data.error);
+            if (data.debug) console.error('Debug info:', data.debug);
+            throw new Error(data.error);
+        }
+
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error('Invalid response format from API');
+        }
+        
+        const planData = JSON.parse(data.choices[0].message.content);
+        console.log('Plan data:', planData);
+        return processAIPlan(planData, formData);
+        
+    } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+    }
+}
 
         // Process AI response and enrich with materials
         function processAIPlan(aiPlan, formData) {
