@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepareMeAI - SAT & IELTS Study Plans</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        .calendar-day {
+            min-height: 100px;
+            transition: all 0.2s;
+        }
+        .calendar-day:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .milestone-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .study-module {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .timeline-dot {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-semibold text-gray-900">PrepareMeAI</h1>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="showPage('home')" class="nav-btn text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition">Home</button>
+                    <button onclick="showPage('study-plan')" class="nav-btn text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition">Study Plan</button>
+                    <button onclick="showPage('about')" class="nav-btn text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition">About</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Welcome to PrepareMeAI</h2>
+                <p class="text-xl text-gray-600 mb-8">Personalized AI-powered study plans for SAT and IELTS success</p>
+                
+                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition">
+                        <div class="text-blue-600 mb-4">
+                            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">SAT Preparation</h3>
+                        <p class="text-gray-600 mb-4">Comprehensive study plans for Math, Reading, and Writing sections</p>
+                        <button onclick="startPlan('SAT')" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">Start SAT Plan</button>
+                    </div>
+                    
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition">
+                        <div class="text-green-600 mb-4">
+                            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">IELTS Preparation</h3>
+                        <p class="text-gray-600 mb-4">Tailored plans for Listening, Reading, Writing, and Speaking</p>
+                        <button onclick="startPlan('IELTS')" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">Start IELTS Plan</button>
+                    </div>
+                </div>
+
+                <div class="mt-12 bg-blue-50 p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-4">How It Works</h3>
+                    <div class="grid md:grid-cols-3 gap-6 text-left">
+                        <div>
+                            <div class="bg-white w-12 h-12 rounded-full flex items-center justify-center mb-3">
+                                <span class="text-blue-600 font-bold">1</span>
+                            </div>
+                            <h4 class="font-semibold mb-2">Select Your Exam</h4>
+                            <p class="text-gray-600 text-sm">Choose between SAT or IELTS preparation</p>
+                        </div>
+                        <div>
+                            <div class="bg-white w-12 h-12 rounded-full flex items-center justify-center mb-3">
+                                <span class="text-blue-600 font-bold">2</span>
+                            </div>
+                            <h4 class="font-semibold mb-2">Customize Your Plan</h4>
+                            <p class="text-gray-600 text-sm">Input your target score, timeline, and study preferences</p>
+                        </div>
+                        <div>
+                            <div class="bg-white w-12 h-12 rounded-full flex items-center justify-center mb-3">
+                                <span class="text-blue-600 font-bold">3</span>
+                            </div>
+                            <h4 class="font-semibold mb-2">Get AI Study Plan</h4>
+                            <p class="text-gray-600 text-sm">Receive a personalized, week-by-week study schedule</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Plan Page -->
+    <div id="study-plan-page" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">Generate Your Study Plan</h2>
+            
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <form id="study-form" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Exam Type</label>
+                        <select id="exam-type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select exam type</option>
+                            <option value="SAT">SAT</option>
+                            <option value="IELTS">IELTS</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Current Level</label>
+                        <select id="current-level" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select your current level</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target Score</label>
+                        <input type="text" id="target-score" placeholder="e.g., SAT: 1500, IELTS: 7.5" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Study Duration (weeks)</label>
+                        <input type="number" id="study-duration" min="1" max="52" placeholder="e.g., 12" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Hours Available Per Day</label>
+                        <input type="number" id="hours-per-day" min="1" max="12" step="0.5" placeholder="e.g., 3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Weak Areas (optional)</label>
+                        <textarea id="weak-areas" rows="3" placeholder="e.g., Math algebra, Reading comprehension, Essay writing" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition font-medium">
+                        Generate AI Study Plan
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="hidden mt-8 text-center">
+                <div class="inline-flex items-center">
+                    <svg class="animate-spin h-5 w-5 mr-3 text-blue-600" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="loading-dots">Generating your personalized study plan</span>
+                </div>
+            </div>
+
+            <!-- Enhanced Study Plan Result -->
+            <div id="study-plan-result" class="hidden mt-8 fade-in">
+                <!-- Quick Summary Cards -->
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg">
+                        <div class="text-2xl font-bold" id="total-hours">0</div>
+                        <div class="text-sm opacity-90">Total Study Hours</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg">
+                        <div class="text-2xl font-bold" id="weeks-count">0</div>
+                        <div class="text-sm opacity-90">Weeks</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
+                        <div class="text-2xl font-bold" id="target-display">-</div>
+                        <div class="text-sm opacity-90">Target Score</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg">
+                        <div class="text-2xl font-bold" id="daily-hours">0h</div>
+                        <div class="text-sm opacity-90">Daily Commitment</div>
+                    </div>
+                </div>
+
+                <!-- Tabs Navigation -->
+                <div class="bg-white rounded-lg shadow-md mb-4">
+                    <div class="flex border-b">
+                        <button onclick="switchTab('timeline')" class="tab-btn px-6 py-3 font-medium text-blue-600 border-b-2 border-blue-600" data-tab="timeline">
+                            📅 Timeline View
+                        </button>
+                        <button onclick="switchTab('calendar')" class="tab-btn px-6 py-3 font-medium text-gray-600 hover:text-gray-900" data-tab="calendar">
+                            📆 Calendar
+                        </button>
+                        <button onclick="switchTab('modules')" class="tab-btn px-6 py-3 font-medium text-gray-600 hover:text-gray-900" data-tab="modules">
+                            📚 Study Modules
+                        </button>
+                        <button onclick="switchTab('progress')" class="tab-btn px-6 py-3 font-medium text-gray-600 hover:text-gray-900" data-tab="progress">
+                            📊 Progress Tracker
+                        </button>
+                        <button onclick="switchTab('resources')" class="tab-btn px-6 py-3 font-medium text-gray-600 hover:text-gray-900" data-tab="resources">
+                            📖 Resources
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="bg-white rounded-lg shadow-md p-8">
+                    <!-- Timeline View -->
+                    <div id="timeline-tab" class="tab-content active">
+                        <h3 class="text-xl font-bold mb-6">Your Study Journey</h3>
+                        <div id="timeline-container" class="relative">
+                            <!-- Timeline will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Calendar View -->
+                    <div id="calendar-tab" class="tab-content">
+                        <h3 class="text-xl font-bold mb-6">Study Calendar</h3>
+                        <div id="calendar-controls" class="flex justify-between mb-4">
+                            <button onclick="changeWeek(-1)" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">← Previous Week</button>
+                            <span id="current-week" class="font-semibold">Week 1</span>
+                            <button onclick="changeWeek(1)" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Next Week →</button>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-2">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Study Modules -->
+                    <div id="modules-tab" class="tab-content">
+                        <h3 class="text-xl font-bold mb-6">Study Modules Breakdown</h3>
+                        <div id="modules-container" class="space-y-4">
+                            <!-- Modules will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Progress Tracker -->
+                    <div id="progress-tab" class="tab-content">
+                        <h3 class="text-xl font-bold mb-6">Track Your Progress</h3>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <canvas id="progressChart"></canvas>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-4">Milestones</h4>
+                                <div id="milestones-list" class="space-y-3">
+                                    <!-- Milestones will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div id="resources-tab" class="tab-content">
+                        <h3 class="text-xl font-bold mb-6">Recommended Resources</h3>
+                        <div id="resources-container" class="grid md:grid-cols-2 gap-4">
+                            <!-- Resources will be generated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 flex gap-4">
+                    <button onclick="downloadPlan()" class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition font-medium">
+                        📥 Download Complete Plan
+                    </button>
+                    <button onclick="printSchedule()" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition font-medium">
+                        🖨️ Print Schedule
+                    </button>
+                    <button onclick="resetForm()" class="bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition font-medium">
+                        🔄 Create New Plan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">About PrepareMeAI</h2>
+            <div class="bg-white rounded-lg shadow-md p-8 prose max-w-none">
+                <p class="text-gray-600">PrepareMeAI leverages advanced artificial intelligence to create personalized study plans for high school students preparing for SAT and IELTS exams.</p>
+                
+                <h3 class="mt-6 text-xl font-semibold">Features</h3>
+                <ul class="text-gray-600">
+                    <li>Visual timeline and calendar views for easy planning</li>
+                    <li>Interactive progress tracking with charts and milestones</li>
+                    <li>Module-based learning approach</li>
+                    <li>Personalized study schedules based on your goals</li>
+                    <li>Week-by-week breakdown with daily tasks</li>
+                    <li>Focus on weak areas for maximum improvement</li>
+                    <li>Curated reading materials from Aeon and Longreads</li>
+                </ul>
+
+                <h3 class="mt-6 text-xl font-semibold">How to Use</h3>
+                <ol class="text-gray-600">
+                    <li>Navigate to the Study Plan page</li>
+                    <li>Fill in your exam details and preferences</li>
+                    <li>Click "Generate AI Study Plan"</li>
+                    <li>Explore your plan through different views (Timeline, Calendar, Modules)</li>
+                    <li>Track your progress and adjust as needed</li>
+                    <li>Download or print your personalized plan</li>
+                </ol>
+                
+                <h3 class="mt-6 text-xl font-semibold">Made by</h3>
+                <ol class="text-gray-600">
+                    <li>Arsen Zholdas</li>
+                    
+                </ol>    
+                <p class="mt-6 text-sm text-gray-500">Note: This tool uses AI to generate recommendations. Always supplement with official study materials and consider consulting with teachers or tutors for best results.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - IMPORTANT: Replace with your actual API key
+        const API_KEY = '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'; // SECURITY WARNING: Never expose API keys in production!
+        const API_URL = 'https://api.openai.com/v1/chat/completions';
+        const USE_MOCK_DATA = false; // Set to false when you have a valid API key
+        
+        let currentWeek = 1;
+        let studyPlanData = null;
+        let progressChart = null;
+
+        // Curated Study Materials Database
+        const STUDY_MATERIALS = {
+            reading: [
+                {
+                    title: "You need to build mastery in order to find your flow",
+                    source: "Aeon",
+                    url: "https://aeon.co/essays/you-need-to-build-mastery-in-order-to-find-your-flow",
+                    duration: "15-20 min",
+                    topics: ["Psychology", "Learning", "Personal Development"],
+                    difficulty: "Intermediate",
+                    bestFor: ["IELTS Academic Reading", "SAT Reading Comprehension"]
+                },
+                {
+                    title: "Your brain does not process information, retrieve knowledge or store memories. In short: your brain is not a computer",
+                    source: "Aeon",
+                    url: "https://aeon.co/essays/your-brain-does-not-process-information-and-it-is-not-a-computer",
+                    duration: "Advanced (approx 20-25 min)",
+                    topics: ["Neuroscience", "Cognition", "Philosophy of Mind"],
+                    difficulty: "Advanced",
+                    bestFor: ["IELTS Academic Reading", "SAT Science Analysis"]
+                },
+                {
+                    title: "For some, it's only when school stops that learning starts",
+                    source: "Aeon",
+                    url: "https://aeon.co/essays/for-some-its-only-when-school-stops-that-learning-starts",
+                    duration: "16-18 min",
+                    topics: ["Education", "Learning Theory", "Personal Growth"],
+                    difficulty: "Intermediate",
+                    bestFor: ["IELTS General Reading", "SAT Critical Analysis"]
+                },
+                {
+                    title: "We are more than our brains: on neuroscience and being human",
+                    source: "Aeon",
+                    url: "https://aeon.co/essays/we-are-more-than-our-brains-on-neuroscience-and-being-human",
+                    duration: "Advanced (approx 20 min)",
+                    topics: ["Neuroscience", "Identity", "Philosophy"],
+                    difficulty: "Advanced",
+                    bestFor: ["IELTS Academic Reading", "SAT Argument Analysis"]
+                },
+                {
+                    title: "Can we build an artificial brain that believes itself to be conscious? Does that mean we have solved the hard problem?",
+                    source: "Aeon",
+                    url: "https://aeon.co/essays/can-we-make-consciousness-into-an-engineering-problem",
+                    duration: "Advanced (approx 15-20 min)",
+                    topics: ["Consciousness", "Neuroscience", "Technology & Ethics"],
+                    difficulty: "Advanced",
+                    bestFor: ["IELTS Academic Reading", "SAT Scientific Arguments"]
+                },
+                {
+                    title: "Deep beneath the Earth's surface",
+                    source: "Aeon",
+                    url: "https://aeon.co/essays/deep-beneath-the-earths-surface-life-is-weird-and-wonderful",
+                    duration: "Long read",
+                    topics: ["Science", "Biology", "Geology"],
+                    difficulty: "Advanced",
+                    bestFor: ["IELTS Academic Reading", "SAT Complex Passages"]
+                },
+                {
+                    title: "Down to Earth: environmental long reads special",
+                    source: "The Guardian",
+                    url: "https://www.theguardian.com/environment/2024/dec/17/down-to-earth-long-read-special",
+                    duration: "Long read",
+                    topics: ["Environment", "Climate Change", "Social Issues"],
+                    difficulty: "Intermediate",
+                    bestFor: ["IELTS Academic Reading", "SAT Critical Analysis"]
+                },
+                {
+                    title: "Thinking like a planet – environmental crisis and the humanities",
+                    source: "The Conversation",
+                    url: "https://theconversation.com/friday-essay-thinking-like-a-planet-environmental-crisis-and-the-humanities-125489",
+                    duration: "Intermediate-Advanced (approx 15-18 min)",
+                    topics: ["Environment", "Humanities", "Ethics"],
+                    difficulty: "Advanced",
+                    bestFor: ["IELTS Academic Reading", "SAT Argument Analysis"]
+                },
+                {
+                    title: "Catapult Stories Collection",
+                    source: "Longreads",
+                    url: "https://longreads.com/2023/02/14/catapult-magazine-reading-list/",
+                    duration: "Various",
+                    topics: ["Culture", "Food", "Personal Essays"],
+                    difficulty: "Mixed",
+                    bestFor: ["IELTS General Reading", "SAT Author's Voice"]
+                },
+                {
+                    title: "The Great Forgetting",
+                    source: "Nautilus via Longreads",
+                    url: "https://longreads.com/2023/12/07/best-of-2023-reported-essays/#the-great-forgetting",
+                    duration: "3,975 words",
+                    topics: ["Memory", "Science", "Psychology"],
+                    difficulty: "Advanced",
+                    bestFor: ["IELTS Academic Reading", "SAT Scientific Arguments"]
+                }
+            ]
+        };
+
+        // Page Navigation
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.add('hidden'));
+            
+            const targetPage = document.getElementById(`${pageId}-page`);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('fade-in');
+            }
+
+            // Update nav buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('bg-gray-100');
+                if (btn.textContent.toLowerCase() === pageId.replace('-', ' ')) {
+                    btn.classList.add('bg-gray-100');
+                }
+            });
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                btn.classList.add('text-gray-600');
+                
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.remove('text-gray-600');
+                    btn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                }
+            });
+        }
+
+        // Start plan from home page
+        function startPlan(examType) {
+            showPage('study-plan');
+            document.getElementById('exam-type').value = examType;
+        }
+
+        // Form submission
+        document.getElementById('study-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                examType: document.getElementById('exam-type').value,
+                currentLevel: document.getElementById('current-level').value,
+                targetScore: document.getElementById('target-score').value,
+                studyDuration: document.getElementById('study-duration').value,
+                hoursPerDay: document.getElementById('hours-per-day').value,
+                weakAreas: document.getElementById('weak-areas').value
+            };
+
+            // Validation
+            if (!formData.examType || !formData.currentLevel || !formData.targetScore || !formData.studyDuration || !formData.hoursPerDay) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('study-plan-result').classList.add('hidden');
+
+            try {
+                let studyPlan;
+                if (USE_MOCK_DATA) {
+                    // Use mock data for testing
+                    studyPlan = await generateMockStudyPlan(formData);
+                } else {
+                    // Use real API
+                    studyPlan = await generateAIStudyPlan(formData);
+                }
+                displayEnhancedStudyPlan(studyPlan, formData);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating study plan. Please check your API key and try again.');
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        });
+
+        // Generate AI study plan using OpenAI API
+        async function generateAIStudyPlan(formData) {
+            const readingList = STUDY_MATERIALS.reading.map(r => 
+                `"${r.title}" (${r.source}, ${r.duration})`
+            ).join(', ');
+
+            const prompt = `Create a detailed ${formData.studyDuration}-week study plan for a ${formData.currentLevel} level student preparing for ${formData.examType} exam. 
+            Target score: ${formData.targetScore}
+            Study hours per day: ${formData.hoursPerDay}
+            Weak areas to focus on: ${formData.weakAreas || 'General improvement'}
+            
+            IMPORTANT: Incorporate these specific reading materials throughout the plan:
+            ${readingList}
+            
+            Please provide a JSON response with the following structure:
+            {
+                "weeklyPlan": [
+                    {
+                        "week": 1,
+                        "focus": "Foundation Building",
+                        "tasks": ["task1", "task2", ...],
+                        "assignedReadings": ["article title 1", "article title 2"],
+                        "milestone": null or "Practice Test #1",
+                        "hours": number
+                    }
+                ],
+                "modules": ["Module 1", "Module 2", ...],
+                "tips": ["tip1", "tip2", ...]
+            }
+            
+            Distribute the reading materials across weeks based on difficulty and relevance.`;
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4-turbo-preview', // or 'gpt-3.5-turbo' for lower cost
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'You are an expert educational consultant specializing in SAT and IELTS exam preparation. Always respond with valid JSON.'
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 2500,
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(`API Error: ${error.error?.message || 'Unknown error'}`);
+            }
+
+            const data = await response.json();
+            const planData = JSON.parse(data.choices[0].message.content);
+            
+            // Process and enrich the plan with reading materials
+            return processAIPlan(planData, formData);
+        }
+
+        // Process AI response and enrich with materials
+        function processAIPlan(aiPlan, formData) {
+            const enrichedPlan = {
+                summary: `${formData.studyDuration}-week personalized study plan for ${formData.examType}`,
+                targetScore: formData.targetScore,
+                weeklyPlan: aiPlan.weeklyPlan.map(week => {
+                    // Match assigned readings with our database
+                    const readings = week.assignedReadings ? 
+                        week.assignedReadings.map(title => 
+                            STUDY_MATERIALS.reading.find(r => r.title.includes(title) || title.includes(r.title))
+                        ).filter(Boolean) : [];
+                    
+                    return {
+                        ...week,
+                        readings: readings.length > 0 ? readings : assignWeeklyReadings(week.week, formData.studyDuration, formData.examType)
+                    };
+                }),
+                resources: generateResources(formData.examType),
+                modules: aiPlan.modules || generateModules(formData.examType, formData.weakAreas)
+            };
+            
+            return enrichedPlan;
+        }
+
+        // Generate mock study plan for testing
+        async function generateMockStudyPlan(formData) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const weeks = parseInt(formData.studyDuration);
+            const weeklyPlan = [];
+            
+            for (let i = 1; i <= weeks; i++) {
+                const weekReadings = assignWeeklyReadings(i, weeks, formData.examType);
+                weeklyPlan.push({
+                    week: i,
+                    focus: getWeekFocus(i, weeks, formData.examType),
+                    tasks: generateWeeklyTasks(i, formData.examType, weekReadings),
+                    readings: weekReadings,
+                    milestone: i % 4 === 0 ? `Practice Test #${Math.floor(i/4)}` : null,
+                    hours: parseFloat(formData.hoursPerDay) * 7
+                });
+            }
+            
+            return {
+                summary: `${weeks}-week personalized study plan for ${formData.examType}`,
+                targetScore: formData.targetScore,
+                weeklyPlan: weeklyPlan,
+                resources: generateResources(formData.examType),
+                modules: generateModules(formData.examType, formData.weakAreas)
+            };
+        }
+
+        // Assign specific readings for each week
+        function assignWeeklyReadings(week, totalWeeks, examType) {
+            const phase = week / totalWeeks;
+            const readings = [];
+            
+            // Select 2-3 appropriate articles based on week and difficulty progression
+            if (phase <= 0.25) {
+                // Foundation: Start with intermediate difficulty
+                readings.push(STUDY_MATERIALS.reading[0]); // Mastery and flow
+                readings.push(STUDY_MATERIALS.reading[2]); // Learning after school
+            } else if (phase <= 0.5) {
+                // Skill Development: Mix intermediate and advanced
+                readings.push(STUDY_MATERIALS.reading[3]); // Kenya's farmlands
+                readings.push(STUDY_MATERIALS.reading[7]); // Locked In, Priced Out
+            } else if (phase <= 0.75) {
+                // Practice: Advanced readings
+                readings.push(STUDY_MATERIALS.reading[4]); // Why do we sleep
+                readings.push(STUDY_MATERIALS.reading[5]); // Deep beneath Earth
+            } else {
+                // Final Prep: Complex and varied
+                readings.push(STUDY_MATERIALS.reading[1]); // Frontotemporal dementia
+                readings.push(STUDY_MATERIALS.reading[9]); // The Great Forgetting
+            }
+            
+            return readings;
+        }
+
+        // Helper functions for generating plan structure
+        function getWeekFocus(week, totalWeeks, examType) {
+            const phase = week / totalWeeks;
+            if (phase <= 0.25) return "Foundation Building";
+            if (phase <= 0.5) return "Skill Development";
+            if (phase <= 0.75) return "Practice & Refinement";
+            return "Final Preparation";
+        }
+
+        function generateWeeklyTasks(week, examType, weekReadings) {
+            const baseTasks = {
+                'SAT': [
+                    `Math: Algebra practice (2 hours)`,
+                    `Writing: Grammar rules (1 hour)`,
+                    `Practice questions (1.5 hours)`,
+                    `Review mistakes (1 hour)`
+                ],
+                'IELTS': [
+                    `Listening: Audio exercises (1.5 hours)`,
+                    `Writing: Essay structure (1.5 hours)`,
+                    `Speaking: Mock interviews (1 hour)`,
+                    `Vocabulary building (1 hour)`
+                ]
+            };
+            
+            // Add reading tasks with specific articles
+            const readingTasks = weekReadings.map(article => 
+                `Reading: "${article.title}" (${article.duration}) - Focus on ${article.topics[0]}`
+            );
+            
+            return [...baseTasks[examType] || [], ...readingTasks];
+        }
+
+        function generateResources(examType) {
+            const baseResources = [
+                { name: `Official ${examType} Guide`, type: 'Book', priority: 'Essential' },
+                { name: 'Khan Academy', type: 'Online', priority: 'Recommended' },
+                { name: 'Practice Tests Bundle', type: 'Book', priority: 'Essential' },
+                { name: 'Vocabulary Builder App', type: 'App', priority: 'Optional' }
+            ];
+            
+            // Add curated reading materials as resources
+            const readingResources = [
+                { name: 'Aeon Essays Collection', type: 'Online Articles', priority: 'Essential' },
+                { name: 'Longreads Best Essays', type: 'Online Articles', priority: 'Recommended' }
+            ];
+            
+            return [...baseResources, ...readingResources];
+        }
+
+        function generateModules(examType, weakAreas) {
+            const modules = {
+                'SAT': ['Math Fundamentals', 'Critical Reading', 'Essay Writing', 'Test Strategy'],
+                'IELTS': ['Listening Skills', 'Academic Reading', 'Task Writing', 'Speaking Fluency']
+            };
+            return modules[examType] || [];
+        }
+
+        // Display enhanced study plan
+        function displayEnhancedStudyPlan(plan, formData) {
+            studyPlanData = plan;
+            
+            // Update summary cards
+            document.getElementById('total-hours').textContent = formData.hoursPerDay * 7 * formData.studyDuration;
+            document.getElementById('weeks-count').textContent = formData.studyDuration;
+            document.getElementById('target-display').textContent = formData.targetScore;
+            document.getElementById('daily-hours').textContent = `${formData.hoursPerDay}h`;
+            
+            // Generate all views
+            generateTimeline(plan.weeklyPlan);
+            generateCalendar(plan.weeklyPlan);
+            generateStudyModules(plan.modules);
+            generateProgressChart(plan.weeklyPlan);
+            generateResourcesList(plan.resources);
+            
+            // Show the result
+            document.getElementById('study-plan-result').classList.remove('hidden');
+        }
+
+        // Generate Timeline View
+        function generateTimeline(weeklyPlan) {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+            
+            const timeline = document.createElement('div');
+            timeline.className = 'relative pl-8';
+            
+            // Create timeline line
+            const line = document.createElement('div');
+            line.className = 'absolute left-3 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-purple-500';
+            timeline.appendChild(line);
+            
+            weeklyPlan.forEach((week, index) => {
+                const weekItem = document.createElement('div');
+                weekItem.className = 'relative mb-8 fade-in';
+                weekItem.style.animationDelay = `${index * 0.1}s`;
+                
+                // Timeline dot
+                const dot = document.createElement('div');
+                dot.className = `absolute -left-5 w-6 h-6 rounded-full ${week.milestone ? 'bg-orange-500 milestone-badge' : 'bg-blue-500'} border-4 border-white timeline-dot`;
+                weekItem.appendChild(dot);
+                
+                // Week content
+                const content = document.createElement('div');
+                content.className = 'bg-gray-50 p-4 rounded-lg hover:shadow-md transition';
+                
+                // Include readings if available
+                const readingsHtml = week.readings && week.readings.length > 0 ? 
+                    `<div class="mt-3 p-3 bg-blue-50 rounded">
+                        <div class="text-sm font-semibold text-blue-700 mb-2">📚 Required Readings:</div>
+                        ${week.readings.map(r => 
+                            `<div class="text-sm text-gray-700 mb-1">
+                                • <a href="${r.url}" target="_blank" class="text-blue-600 hover:underline">${r.title}</a> 
+                                <span class="text-gray-500">(${r.duration})</span>
+                            </div>`
+                        ).join('')}
+                    </div>` : '';
+                
+                content.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-semibold text-lg">Week ${week.week}: ${week.focus}</h4>
+                        <span class="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded">${week.hours} hours</span>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        ${week.tasks.slice(0, 5).map(task => `<li>• ${task}</li>`).join('')}
+                    </ul>
+                    ${readingsHtml}
+                    ${week.milestone ? `<div class="mt-3 text-sm font-semibold text-orange-600">🎯 ${week.milestone}</div>` : ''}
+                `;
+                weekItem.appendChild(content);
+                
+                timeline.appendChild(weekItem);
+            });
+            
+            container.appendChild(timeline);
+        }
+
+        // Generate Calendar View
+        function generateCalendar(weeklyPlan) {
+            const container = document.getElementById('calendar-grid');
+            container.innerHTML = '';
+            
+            const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            
+            // Header
+            daysOfWeek.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'text-center font-semibold text-gray-700 p-2';
+                header.textContent = day;
+                container.appendChild(header);
+            });
+            
+            // Days
+            const currentWeekData = weeklyPlan[currentWeek - 1];
+            if (currentWeekData) {
+                for (let i = 0; i < 7; i++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'calendar-day bg-white border rounded-lg p-3 cursor-pointer';
+                    
+                    const isWeekend = i >= 5;
+                    const dailyHours = parseFloat(document.getElementById('hours-per-day').value);
+                    const todayHours = isWeekend ? dailyHours * 1.5 : dailyHours;
+                    
+                    dayCell.innerHTML = `
+                        <div class="font-semibold text-sm mb-2">${daysOfWeek[i]}</div>
+                        <div class="text-xs text-gray-600">
+                            <div class="mb-1">📚 ${todayHours}h study</div>
+                            <div class="text-blue-600">${currentWeekData.focus}</div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(dayCell);
+                }
+            }
+        }
+
+        // Calendar navigation
+        function changeWeek(direction) {
+            const maxWeeks = studyPlanData ? studyPlanData.weeklyPlan.length : 1;
+            currentWeek = Math.max(1, Math.min(maxWeeks, currentWeek + direction));
+            document.getElementById('current-week').textContent = `Week ${currentWeek}`;
+            generateCalendar(studyPlanData.weeklyPlan);
+        }
+
+        // Generate Study Modules
+        function generateStudyModules(modules) {
+            const container = document.getElementById('modules-container');
+            container.innerHTML = '';
+            
+            modules.forEach((module, index) => {
+                const moduleCard = document.createElement('div');
+                moduleCard.className = 'study-module text-white p-6 rounded-lg transform hover:scale-105 transition';
+                moduleCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-2">${module}</h4>
+                            <div class="text-sm opacity-90">Module ${index + 1}</div>
+                        </div>
+                        <div class="text-3xl opacity-50">
+                            ${['📐', '📖', '✍️', '🎯'][index] || '📚'}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="bg-white bg-opacity-20 rounded-full h-2 overflow-hidden">
+                            <div class="bg-white h-full rounded-full" style="width: 0%; transition: width 2s ease-out;"></div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(moduleCard);
+                
+                // Animate progress bar
+                setTimeout(() => {
+                    moduleCard.querySelector('.bg-white.h-full').style.width = '25%';
+                }, 100 * index);
+            });
+        }
+
+        // Generate Progress Chart
+        function generateProgressChart(weeklyPlan) {
+            const ctx = document.getElementById('progressChart');
+            if (!ctx) return;
+            
+            if (progressChart) {
+                progressChart.destroy();
+            }
+            
+            const weeks = weeklyPlan.map(w => `Week ${w.week}`);
+            const hours = weeklyPlan.map(w => w.hours);
+            const cumulative = hours.reduce((acc, val, i) => {
+                acc.push((acc[i - 1] || 0) + val);
+                return acc;
+            }, []);
+            
+            progressChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weeks,
+                    datasets: [
+                        {
+                            label: 'Weekly Hours',
+                            data: hours,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Cumulative Hours',
+                            data: cumulative,
+                            borderColor: 'rgb(168, 85, 247)',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Study Progress Overview'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Generate milestones
+            const milestonesContainer = document.getElementById('milestones-list');
+            milestonesContainer.innerHTML = '';
+            
+            weeklyPlan.filter(w => w.milestone).forEach(week => {
+                const milestone = document.createElement('div');
+                milestone.className = 'flex items-center space-x-3 p-3 bg-orange-50 rounded-lg';
+                milestone.innerHTML = `
+                    <div class="text-2xl">🎯</div>
+                    <div>
+                        <div class="font-semibold">Week ${week.week}</div>
+                        <div class="text-sm text-gray-600">${week.milestone}</div>
+                    </div>
+                `;
+                milestonesContainer.appendChild(milestone);
+            });
+        }
+
+        // Generate Resources List
+        function generateResourcesList(resources) {
+            const container = document.getElementById('resources-container');
+            container.innerHTML = '';
+            
+            // First add the general resources
+            resources.forEach(resource => {
+                const card = document.createElement('div');
+                const priorityColor = resource.priority === 'Essential' ? 'red' : 
+                                     resource.priority === 'Recommended' ? 'yellow' : 'gray';
+                
+                card.className = 'bg-white border rounded-lg p-4 hover:shadow-md transition';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h5 class="font-semibold">${resource.name}</h5>
+                        <span class="text-xs px-2 py-1 bg-${priorityColor}-100 text-${priorityColor}-700 rounded">
+                            ${resource.priority}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600">Type: ${resource.type}</div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // Add reading materials section
+            const readingSection = document.createElement('div');
+            readingSection.className = 'md:col-span-2 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 mt-4';
+            readingSection.innerHTML = `
+                <h4 class="font-bold text-lg mb-4 text-indigo-900">📚 Curated Reading Materials</h4>
+                <div class="grid gap-3">
+                    ${STUDY_MATERIALS.reading.map(article => `
+                        <div class="bg-white rounded p-3 hover:shadow transition">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <a href="${article.url}" target="_blank" class="font-medium text-blue-600 hover:underline">
+                                        ${article.title}
+                                    </a>
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        ${article.source} • ${article.duration} • ${article.topics.join(', ')}
+                                    </div>
+                                    <div class="text-xs mt-1">
+                                        <span class="px-2 py-1 bg-gray-100 rounded">${article.difficulty}</span>
+                                        <span class="ml-1 text-gray-600">Best for: ${article.bestFor.join(', ')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(readingSection);
+        }
+
+        // Download plan
+        function downloadPlan() {
+            if (!studyPlanData) return;
+            
+            // Create a well-formatted HTML document
+            let htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Study Plan - ${studyPlanData.targetScore}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #2563eb; border-bottom: 3px solid #2563eb; padding-bottom: 10px; }
+        h2 { color: #1e40af; margin-top: 30px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; }
+        h3 { color: #3730a3; margin-top: 20px; }
+        .header-info { background: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .week-section { background: #f9fafb; padding: 15px; margin: 15px 0; border-left: 4px solid #3b82f6; border-radius: 5px; }
+        .milestone { background: #fef3c7; padding: 8px; border-radius: 5px; margin: 10px 0; font-weight: bold; color: #92400e; }
+        .reading-list { background: #f0f9ff; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .reading-item { margin: 8px 0; padding-left: 20px; }
+        ul { margin: 10px 0; }
+        li { margin: 5px 0; }
+        .resource { background: #fafafa; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb; text-align: center; color: #6b7280; }
+        @media print { 
+            body { padding: 10px; }
+            .week-section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Personalized Study Plan</h1>
+    
+    <div class="header-info">
+        <p><strong>Target Score:</strong> ${studyPlanData.targetScore}</p>
+        <p><strong>Duration:</strong> ${studyPlanData.weeklyPlan.length} weeks</p>
+        <p><strong>Total Study Hours:</strong> ${studyPlanData.weeklyPlan.reduce((sum, w) => sum + w.hours, 0)} hours</p>
+        <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+    </div>
+    
+    <h2>Weekly Study Schedule</h2>`;
+            
+            // Add each week's content
+            studyPlanData.weeklyPlan.forEach(week => {
+                htmlContent += `
+    <div class="week-section">
+        <h3>Week ${week.week}: ${week.focus}</h3>
+        <p><strong>Study Hours:</strong> ${week.hours} hours</p>
+        
+        <h4>Tasks:</h4>
+        <ul>
+            ${week.tasks.map(task => `<li>${task}</li>`).join('')}
+        </ul>`;
+                
+                if (week.readings && week.readings.length > 0) {
+                    htmlContent += `
+        <div class="reading-list">
+            <h4>Required Readings:</h4>
+            ${week.readings.map(r => `
+            <div class="reading-item">
+                • <strong>${r.title}</strong><br>
+                &nbsp;&nbsp;&nbsp;Source: ${r.source} | Duration: ${r.duration}<br>
+                &nbsp;&nbsp;&nbsp;Topics: ${r.topics.join(', ')}<br>
+                &nbsp;&nbsp;&nbsp;URL: ${r.url}
+            </div>`).join('')}
+        </div>`;
+                }
+                
+                if (week.milestone) {
+                    htmlContent += `<div class="milestone">🎯 Milestone: ${week.milestone}</div>`;
+                }
+                
+                htmlContent += `</div>`;
+            });
+            
+            // Add resources section
+            htmlContent += `
+    <h2>Study Resources</h2>`;
+            
+            studyPlanData.resources.forEach(resource => {
+                htmlContent += `
+    <div class="resource">
+        <strong>${resource.name}</strong> - ${resource.type} 
+        <span style="float: right; color: ${resource.priority === 'Essential' ? '#dc2626' : '#6b7280'}">
+            ${resource.priority}
+        </span>
+    </div>`;
+            });
+            
+            // Add reading materials
+            htmlContent += `
+    <h2>Complete Reading List</h2>
+    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">`;
+            
+            STUDY_MATERIALS.reading.forEach(article => {
+                htmlContent += `
+        <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+            <strong>${article.title}</strong><br>
+            <small>Source: ${article.source} | ${article.duration} | Difficulty: ${article.difficulty}</small><br>
+            <small>Topics: ${article.topics.join(', ')}</small><br>
+            <small style="color: #2563eb;">${article.url}</small>
+        </div>`;
+            });
+            
+            htmlContent += `
+    </div>
+    
+    <div class="footer">
+        <p>Generated by PrepareMeAI • ${new Date().toLocaleString()}</p>
+        <p style="font-size: 12px;">To save as PDF: Print this page and select "Save as PDF" in your print dialog</p>
+    </div>
+</body>
+</html>`;
+            
+            // Create blob and download
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `study-plan-${studyPlanData.targetScore.replace(/\s/g, '-')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            // Show instructions for PDF
+            alert('Your study plan has been downloaded as an HTML file. To convert to PDF:\n\n1. Open the downloaded file in your browser\n2. Press Ctrl/Cmd + P to print\n3. Select "Save as PDF" as the destination\n4. Click Save');
+        }
+
+        // Print schedule
+        function printSchedule() {
+            // Create a new window with formatted content for printing
+            const printWindow = window.open('', '_blank');
+            
+            if (!studyPlanData) {
+                alert('Please generate a study plan first');
+                return;
+            }
+            
+            const printContent = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Study Plan Schedule</title>
+    <style>
+        @media print {
+            body { margin: 0; padding: 15px; font-family: Arial, sans-serif; }
+            .no-print { display: none; }
+            .week-block { page-break-inside: avoid; }
+        }
+        body { font-family: Arial, sans-serif; line-height: 1.5; }
+        h1 { color: #1e40af; }
+        .week-block { 
+            margin: 15px 0; 
+            padding: 10px; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 5px;
+        }
+        .reading { 
+            background: #f0f9ff; 
+            padding: 5px; 
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Study Plan - ${studyPlanData.targetScore}</h1>
+    <p>Duration: ${studyPlanData.weeklyPlan.length} weeks</p>
+    ${studyPlanData.weeklyPlan.map(week => `
+        <div class="week-block">
+            <h3>Week ${week.week}: ${week.focus} (${week.hours}h)</h3>
+            <ul>
+                ${week.tasks.map(task => `<li>${task}</li>`).join('')}
+            </ul>
+            ${week.readings && week.readings.length > 0 ? `
+                <div class="reading">
+                    <strong>Readings:</strong>
+                    ${week.readings.map(r => `<div>• ${r.title} (${r.duration})</div>`).join('')}
+                </div>
+            ` : ''}
+            ${week.milestone ? `<p><strong>🎯 ${week.milestone}</strong></p>` : ''}
+        </div>
+    `).join('')}
+</body>
+</html>`;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('study-form').reset();
+            document.getElementById('study-plan-result').classList.add('hidden');
+            currentWeek = 1;
+            studyPlanData = null;
+        }
+
+        // Initialize
+        showPage('home');
+    </script>
+</body>
+</html>
